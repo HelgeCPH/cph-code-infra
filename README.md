@@ -107,15 +107,24 @@ Afterwards, create a first admin user on Jenkins. For this example we will call 
 
 ![CI Setup](docs/images/jenkins_admin_user.png)
 
+Now, install some more plugins that we need to build our projects.
 
-  *
-  Username: builder
+Navigate to  *Manage Jenkins* -> *Manage Plugins* -> *Available* and select the following plugins
+  * `Maven Integration plugin`
+  * `Artifactory Plugin`
+  * `SSH plugin`
 
-  install the following plugins:
-  Manage Jenkins -> Manage Plugins -> Maven Integration plugin
-                                   -> Artifactory Plugin
-                                   -> Jenkins SSH plugin
-                                   -> CloudBees Docker Build and Publish plugin
+After selection, hit *Download now and install after restart* and on the next page check *Restart Jenkins when installation is complete and no jobs are running* and wait until Jenkins is restarted.
+
+Configure how Jenkins finds your Maven installation. For this project we will download Maven dynamically:
+*Manage Jenkins* -> *Global Tool Configuration*
+
+![CI Setup](docs/images/jenkins_maven_cfg.png)
+
+
+
+
+
   Manage Jenkins -> Global Tool Configuration -> Maven -> Install automatically
   setup your projects as maven projects
 
