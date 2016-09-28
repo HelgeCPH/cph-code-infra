@@ -10,9 +10,6 @@ sudo apt-get update
 sudo apt-get install -y jenkins
 # we need the JDK to build our code later
 sudo apt-get install -y openjdk-8-jdk
-# this dependency is only used in a first experiment, we should better generate
-# and share keys amongst the build and remote server
-sudo apt-get install -y sshpass
 
 # install docker to the VM so that we can build docker images
 sudo apt-get update
