@@ -117,19 +117,104 @@ Navigate to *Manage Jenkins* -> *Manage Plugins* -> *Available* and select the f
 After selection, hit *Download now and install after restart* and on the next page check *Restart Jenkins when installation is complete and no jobs are running* and wait until Jenkins is restarted.
 
 Now, we configure how Jenkins finds your Maven installation. For this project we will download Maven dynamically:
-Navigate to *Manage Jenkins* -> *Global Tool Configuration*
+Navigate to *Manage Jenkins* -> *Global Tool Configuration* and set the *Maven* section similar to the following and save.
 
 ![CI Setup](docs/images/jenkins_maven_cfg.png)
 
 
 
+Navigate to *Manage Jenkins* -> *Configure System*, set the *Artifactory* section to point to your Artifactory instance and test the connection to it. In case you did not modify the configuration of your Artifactory instance, then the standard login is `admin` and the standard password is `password`.
+
+![CI Setup](docs/images/jenkins_artifactory_cfg.png)
 
 
-  Manage Jenkins -> Global Tool Configuration -> Maven -> Install automatically
-  setup your projects as maven projects
+
+## Creating Your Build Jobs
+
+In total we will create four build jobs. Three Maven build jobs and one *Freestyle* build job. The latter can incorporate anything and we will use it to execute shell commands to build and deploy our docker containers.
+
+The build jobs are the following:
+
+  * choir-contract (Maven project build job)
+  * choir-backend-mock (Maven project build job)
+  * choir-frontend (Maven project build job)
+  * choir-build-docker (Freestyle project build job)
+
+The dependencies of the build jobs is given by their sequence above.
 
 
-### Creating your Build Jobs
+### A Maven Project Build Job for choir-contract
+
+This job will, with the help of Maven, build the *choir-contract* code, create a JAR file from it and it will push the JAR file to Artifactory so that it can be resolved as dependency from other projects.
+
+Navigate to *New Item*, select *Maven project*, and give it the name `choir-contract`. Subsequently, under *Source Code Management* choose `Git` and point it to corresponding repository on GitHub, see the following screenshot.
+
+![CI Setup](docs/images/jenkins_contract_src.png)
+
+This build job -as configured so far- will build a JAR file on your build machine. You can try that by hitting *Build Now*, which schedules the build job. In the list of the build jobs on the left side you can select the one you just triggered and hit *Console Output* to verify that the build job just created a JAR file for you.
+
+Now, we have to make this JAR file accessible to others by registering it to Artifactory. You do that by adding a *Add post-build action* -> *Deploy artifacts to Artifactory*, in which you point to your Artifactory server and the corresponding release and snapshot repositories, see the following screenshot.
+
+![CI Setup](docs/images/jenkins_contract_post_build.png)
+
+Note, we did not setup any *Build Triggers* so far as for this example we schedule the build job manually. You can select *Build Triggers* to your project needs, such as *Build when a change is pushed to GitHub* or *Build periodically*.
+
+
+### A Maven Project Build Job for choir-backend-mock
+
+This job will, with the help of Maven, build the *choir-backend-mock* code, create a JAR file from it and it will push the JAR file to Artifactory so that it can be resolved as dependency from other projects.
+
+Navigate to *New Item*, select *Maven project*, and give it the name `choir-contract`. Subsequently, under *Source Code Management* choose `Git` and point it to corresponding repository on GitHub, see the following screenshot.
+
+![CI Setup](docs/images/jenkins_backend_src.png)
+
+Now, we have to make this JAR file accessible to others by registering it to Artifactory. You do that by adding a *Add post-build action* -> *Deploy artifacts to Artifactory*, in which you point to your Artifactory server and the corresponding release and snapshot repositories, see the following screenshot.
+
+![CI Setup](docs/images/jenkins_contract_post_build.png)
+
+Note, we did not setup any *Build Triggers* so far as for this example we schedule the build job manually. You can select *Build Triggers* to your project needs, such as *Build when a change is pushed to GitHub* or *Build periodically*, or *Build after other projects are built*, e.g., after `choir-contract` is built.
+
+Furthermore, when building your own code similar to this you have to remember to modify your `pom.xml` accordingly. There you have to add another repository to resolve dependencies like this:
+
+```xml
+<repositories>
+  <repository>
+    <id>choir-repo</id>
+    <name>Our Repo</name>
+    <url>http://<your_ip>:8082/artifactory/libs-release-local</url>
+  </repository>
+</repositories>
+```
+
+### A Maven Project Build Job for choir-frontend
+
+This job will, with the help of Maven, build the *choir-frontend* code, create a WAR file from it. This WAR file will be consumed by the subsequent freestyle build job.
+
+Navigate to *New Item*, select *Maven project*, and give it the name `choir-contract`. Subsequently, under *Source Code Management* choose `Git` and point it to corresponding repository on GitHub, see the following screenshot.
+
+![CI Setup](docs/images/jenkins_frontend_src.png)
+
+Note, when building your own code similar to this you have to remember to modify your `pom.xml` accordingly. There you have to add another repository to resolve dependencies like this:
+
+```xml
+<repositories>
+  <repository>
+    <id>choir-repo</id>
+    <name>Our Repo</name>
+    <url>http://<your_ip>:8082/artifactory/libs-release-local</url>
+  </repository>
+  <repository>
+    <id>choir-repo-snapshot</id>
+    <name>Our Snapshot Repo</name>
+    <url>http://<your_ip>:8082/artifactory/libs-snapshot-local</url>
+  </repository>
+</repositories>
+```
+
+
+
+### A Freestyle Project Build Job for choir-build-docker
+
 
 
 
@@ -162,3 +247,12 @@ If you do not want your repository to be public by default set the standard conf
     mkdir ~/.ssh/
     ssh-keyscan <YOURREMOTEHOST> > ~/.ssh/known_hosts
     exit
+
+
+# Improvements to the Example CI chain
+
+  * SSH key-based login for deployment script.
+  * Configure and share build jobs as Groovy scripts.
+  * Share Jenkins configuration as Groovy scripts.
+
+The idea with the latter two would be to allow for a completely automatic and reproducible CI chain setup.
