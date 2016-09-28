@@ -101,7 +101,12 @@ vagrant ssh
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 ```
 
-Subsequently, you will create a user on Jenkins. For this example we will call it `builder` too.
+Subsequently, choose to *Install suggested plugins*. we will install the other required plugins later manually.
+
+Afterwards, create a first admin user on Jenkins. For this example we will call it `builder` too.
+
+![CI Setup](docs/images/jenkins_admin_user.png)
+
 
   *
   Username: builder
