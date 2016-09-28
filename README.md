@@ -121,12 +121,20 @@ Navigate to *Manage Jenkins* -> *Global Tool Configuration* and set the *Maven* 
 
 ![CI Setup](docs/images/jenkins_maven_cfg.png)
 
-
-
 Navigate to *Manage Jenkins* -> *Configure System*, set the *Artifactory* section to point to your Artifactory instance and test the connection to it. In case you did not modify the configuration of your Artifactory instance, then the standard login is `admin` and the standard password is `password`.
 
 ![CI Setup](docs/images/jenkins_artifactory_cfg.png)
 
+
+### Adding Credentials to Jenkins
+
+To allow for the later use of DockerHub as registry for the container with the final web application you need to be registered at https://hub.docker.com.
+
+After you have generated a user at DockerHub, navigate to *Credentials* -> *(global)* -> *Add Credentials* (which corresponds to navigating to the following URL: http://localhost:8080/credentials/store/system/domain/_/).
+
+There add a `Secret text`, where the secret is your password to your DockerHub account.
+
+![CI Setup](docs/images/jenkins_secret_text.png)
 
 
 ## Creating Your Build Jobs
