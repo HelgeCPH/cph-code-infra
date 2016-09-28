@@ -31,7 +31,7 @@ The purpose of this guide is not to detail this Java project. Instead, we just u
 
 Importantly, the projects depend on each other. The backend mockup depends on the contracts and the frontend depends on the two other projects. The package dependencies -as specified in the Maven metadata (`pom.xml`) of the respective projects- are illustrated in the following.
 
-![Packages](helgecph.github.com/cph-code-infra/docs/images/packages.png)
+![Packages](docs/images/packages.png)
 
 The contracts project and the backend mockup are build as a JAR files, whereas the frontend project is build as a WAR file.
 
@@ -45,7 +45,7 @@ On a remote server -hosted at Digital Ocean, you can host it anywhere else accor
 
 The setup is illustrated in the following.
 
-![CI Setup](helgecph.github.com/cph-code-infra/docs/images/ci_setup.png)
+![CI Setup](docs/images/ci_setup.png)
 
 
 
@@ -108,8 +108,7 @@ Now you have a remote machine up and running with an Artifactory instance, a pri
 
 
 
-Publish to a Docker Registry
-============================
+# Publish to a Docker Registry
 If you do not want your repository to be public by default set the standard configuration in your settings (https://hub.docker.com/account/settings/) to private. You have one private repository for a free plan.
 
 
@@ -119,8 +118,7 @@ If you do not want your repository to be public by default set the standard conf
     docker logout
 
 
-Deploy your image
-=================
+# Deploy your image
 
     ssh builder@XXX
 
@@ -132,16 +130,10 @@ Deploy your image
 
 
 
-ssh builder@139.59.151.102 <<'ENDSSH'
-ls
-cat
-ENDSSH
+## Allow Jenkins Remote Deployment Script Execution
 
-
-OIOIOI
-======
     sudo su jenkins
 
     mkdir ~/.ssh/
-    ssh-keyscan 139.59.151.102 > ~/.ssh/known_hosts
+    ssh-keyscan <YOURREMOTEHOST> > ~/.ssh/known_hosts
     exit
