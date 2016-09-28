@@ -92,6 +92,8 @@ Now you have a remote machine up and running with an Artifactory instance, an Ap
 
 Now that Jenkins is running you have to configure it. On first time use it will present you the following page.
 
+![CI Setup](docs/images/jenkins_fst_login.png)
+
 Here you have to insert the key that you get either from the output of the provision script or via:
 
 ```bash
