@@ -47,7 +47,7 @@ The setup is illustrated in the following.
 ![CI Setup](docs/images/ci_setup.png)
 
 
-Consequently, we have to setup a Jenkins build server in a Vagrant machine, we have to configure it, we have to setup a set of build jobs on it, we have to setup a remote machine with a dockerized Artifactory. The following sections provide a step-wise description on how to do so. To run through this example you should start by cloning this repository to your local machine (`git clone https://github.com/HelgeCPH/cph-code-infra.git`).
+Consequently, we have to setup a Jenkins build server in a Vagrant machine, we have to configure it, we have to setup a set of build jobs on it, we have to setup a remote machine with a dockerized Artifactory. The following sections provide a step-wise description on how to do so. To run through this example you should start by cloning this repository to your local machine (`git clone https://github.com/HelgeCPH/cph-code-infra.git`). Note, that `/path/to` in all of the following examples is the path to the directory in which you cloned this project. Furthermore, this guide assumes that you are in a Linux/Unix environment using BASH.
 
 
 # Setup Your Remote Production Machine
@@ -57,39 +57,50 @@ For this example we rent the cheapest possible cloud machine at Digital Ocean -w
   * Create an account at Digital Ocean (https://www.digitalocean.com)
   * Create a new Ubuntu 16.04.1 droplet (smallest machine, 5$ per month)
   * Register your public SSH key while creating a droplet. If you do not have a pair of keys read on how to do that. (https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets)
-  * SSH to your new machine and create a new user, which we will call `builder`
+  * SSH to your new machine and create a new user, which we will call `builder`. You can copy the IP `<your_ip>` from your droplet configuration page.
     ```bash
-        ssh root@your_ip
-        adduser builder
-        usermod -aG sudo builder
-        exit
+    ssh root@<your_ip>
+    adduser builder
+    usermod -aG sudo builder
+    exit
     ```
-
-  * Copy the setup script to the remote machine and execute it:
-
-```bash
-    scp /path/to/setup.sh builder@<your_ip>:/home/builder
+  * Copy the setup script to the remote machine, log onto it, make the file executable, and run it.
+    ```bash
+    scp /path/to/remote/setup.sh builder@<your_ip>:/home/builder
     ssh builder@<your_ip>
     chmod u+x ./setup.sh
     ./setup.sh
-```
+    exit
+    ```
 
-Now you have a remote machine up and running with an Artifactory instance, a private Docker Registry, and an Apache webserver.
+Now you have a remote machine up and running with an Artifactory instance, an Apache webserver. To validate that these first steps were successful, navigate to http://<your_ip>/ where you should see documentation on how to connect to the Artifactory instance.
 
 
 # Setup Your Local Build Machine
 
-  * Install Vagrant and VirtualBox to your local machine (https://www.vagrantup.com/docs/installation/)
-  * cd to
+  * Install Vagrant (https://www.vagrantup.com/docs/installation/) and VirtualBox (https://www.virtualbox.org/wiki/Downloads) to your local machine
+  * cd to the directory with the Vagrantfile and startup the VM. When started up for the first time `vagrant up` will automatically run the provision script (`provision.sh`). Note in case you want to allow your group members to log onto the Jenkins build server on this machine uncomment the line `  # config.vm.network "public_network"` in the `Vagrantfile`.
+    ```bash
+    cd /path/to/vm
+    vagrant up
+    ```
+  * You can ssh into this VM via `vagrant ssh`
+  * After starting the VM Jenkins should be up and running. You can access it via http://localhost:8080
+
+
+## Configuring Jenkins
+
+Now that Jenkins is running you have to configure it. On first time use it will present you the following page.
+
+Here you have to insert the key that you get either from the output of the provision script or via:
 
 ```bash
-  vagrant up
-  vagrant ssh
-  sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+vagrant ssh
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 ```
 
+Subsequently, you will create a user on Jenkins. For this example we will call it `builder` too.
 
-  * copy the initial password to the field
   *
   Username: builder
 
@@ -100,8 +111,6 @@ Now you have a remote machine up and running with an Artifactory instance, a pri
                                    -> CloudBees Docker Build and Publish plugin
   Manage Jenkins -> Global Tool Configuration -> Maven -> Install automatically
   setup your projects as maven projects
-
-## Configuring Jenkins
 
 
 ### Creating your Build Jobs
