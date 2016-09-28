@@ -68,8 +68,8 @@ Setup Your Remote Production Machine
   * Copy the setup script to the remote machine and execute it:
 
 ```bash
-    scp /path/to/setup.sh builder@139.59.151.102:/home/builder
-    ssh builder@your_ip
+    scp /path/to/setup.sh builder@<your_ip>:/home/builder
+    ssh builder@<your_ip>
     chmod u+x ./setup.sh
     ./setup.sh
 ```
