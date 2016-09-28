@@ -83,6 +83,10 @@ create_homes > create-homes.sh
 chmod u+x ./create-homes.sh
 sudo ./create-homes.sh
 
+# Installing the deployment script, which we will call from a Jenkins build job
+wget https://raw.githubusercontent.com/HelgeCPH/cph-code-infra/master/remote/deploy.sh
+chmod u+x ./deploy.sh
+
 # for the apache container we need the following files, which we download
 # directly without cloning the repository
 mkdir apache
