@@ -109,15 +109,15 @@ Afterwards, create a first admin user on Jenkins. For this example we will call 
 
 Now, install some more plugins that we need to build our projects.
 
-Navigate to  *Manage Jenkins* -> *Manage Plugins* -> *Available* and select the following plugins
+Navigate to *Manage Jenkins* -> *Manage Plugins* -> *Available* and select the following plugins
   * `Maven Integration plugin`
   * `Artifactory Plugin`
   * `SSH plugin`
 
 After selection, hit *Download now and install after restart* and on the next page check *Restart Jenkins when installation is complete and no jobs are running* and wait until Jenkins is restarted.
 
-Configure how Jenkins finds your Maven installation. For this project we will download Maven dynamically:
-*Manage Jenkins* -> *Global Tool Configuration*
+Now, we configure how Jenkins finds your Maven installation. For this project we will download Maven dynamically:
+Navigate to *Manage Jenkins* -> *Global Tool Configuration*
 
 ![CI Setup](docs/images/jenkins_maven_cfg.png)
 
