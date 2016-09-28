@@ -35,7 +35,7 @@ Importantly, the projects depend on each other. The backend mockup depends on th
 
 The contracts project and the backend mockup are build as a JAR files, whereas the frontend project is build as a WAR file.
 
-Remember to fork the backend mockup and the frontend example Java projects (https://github.com/eguahlak/choir-backend-mock, https://github.com/eguahlak/choir-frontend) so that you can modify the IP addresses in the `pom.xml`s to point to your machine running Artifactory instance. Of course, this is only necessary when you want follow this tutorial and you want to replicate this example.
+Remember to fork the backend mockup and the frontend example Java projects (https://github.com/eguahlak/choir-backend-mock, https://github.com/eguahlak/choir-frontend) so that you can modify the IP addresses in the `pom.xml`s to point to your machine running the Artifactory instance. Of course, this is only necessary when you want follow this tutorial and you want to replicate this example.
 
 
 # The CI Setup
@@ -60,6 +60,7 @@ For this example we rent the cheapest possible cloud machine at Digital Ocean -w
   * Create a new Ubuntu 16.04.1 droplet (smallest machine, 5$ per month)
   * Register your public SSH key while creating a droplet. If you do not have a pair of keys read on how to do that. (https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets)
   * SSH to your new machine and create a new user, which we will call `builder`. You can copy the IP `<your_ip>` from your droplet configuration page.
+
     ```bash
     ssh root@<your_ip>
     adduser builder
@@ -67,6 +68,7 @@ For this example we rent the cheapest possible cloud machine at Digital Ocean -w
     exit
     ```
   * Copy the setup script to the remote machine, log onto it, make the file executable, and run it.
+
     ```bash
     scp /path/to/remote/setup.sh builder@<your_ip>:/home/builder
     ssh builder@<your_ip>
