@@ -83,10 +83,12 @@ create_homes > create-homes.sh
 chmod u+x ./create-homes.sh
 sudo ./create-homes.sh
 
+# for the apache container we need the following files, which we download
+# directly without cloning the repository
 mkdir apache
 cd apache
-wget https://raw.githubusercontent.com/praqma-training/code-infra/jenkinsdocker/containers/apache/Dockerfile
-wget https://raw.githubusercontent.com/praqma-training/code-infra/jenkinsdocker/containers/apache/httpd.conf
-wget https://raw.githubusercontent.com/praqma-training/code-infra/jenkinsdocker/containers/apache/index.html
+wget https://raw.githubusercontent.com/HelgeCPH/cph-code-infra/master/remote/apache/Dockerfile
+wget https://raw.githubusercontent.com/HelgeCPH/cph-code-infra/master/remote/apache/httpd.conf
+wget https://raw.githubusercontent.com/HelgeCPH/cph-code-infra/master/remote/apache/index.html
 cd ..
 sudo docker-compose up -d

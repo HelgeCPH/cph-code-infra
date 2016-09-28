@@ -1,4 +1,4 @@
-This document is related to the course Development of Large Systems at Copenhagen Business Academy (). Some parts of it build on infrastructure code and experiences from Praqma's CoDe training ().
+This document is related to the course Development of Large Systems at Copenhagen Business Academy (https://www.cphbusiness.dk/english/study-programmes/top-up-bachelors-degree/software-development/2nd-semester/). Some parts of it build on infrastructure code and experiences from Praqma's CoDe training (https://github.com/praqma-training/code-infra).
 
 This is a guide on how to setup an example continuous integration (CI) chain using the following technologies and tools:
 
@@ -13,8 +13,7 @@ This is a guide on how to setup an example continuous integration (CI) chain usi
 
 
 
-Scenario
-========
+# Scenario
 
 We have a Java project consisting of three projects, which depend on each other.
 
@@ -24,7 +23,8 @@ The project's source code can be found here:
   * A mockup of a backend: https://github.com/eguahlak/choir-backend-mock
   * And a simple frontend: https://github.com/eguahlak/choir-frontend.git
 
-In essence these Java projects form a simple web-application, which serves a list of names
+In essence, these Java projects form a simple web-application, which serves a list of names via a JSP (http://<your_remote_host>:8080/Choir/ChoirManager).
+
 The contracts project consists of a set of interfaces and data transfer objects (DTO) and is used to let different groups of students implement their frontends and backend systems independently against a common specification and mockups.
 
 The purpose of this guide is not to detail this Java project. Instead, we just use it to illustrate some of the steps, which are required to setup a complete CI chain automatically deploying the project on a production server.
@@ -36,10 +36,9 @@ Importantly, the projects depend on each other. The backend mockup depends on th
 The contracts project and the backend mockup are build as a JAR files, whereas the frontend project is build as a WAR file.
 
 
-The CI Setup
-============
+# The CI Setup
 
-We have a set of distributed developers working on their local computers and collaborating on the same source code via a Git repository hosted on GitHub. Since, for this example we do not have access to a proper build server, i.e., a separate machine, we decide to setup an Ubuntu virtual machine (VirtualBox), which will host our Jenkins build server. In case you have access to a proper build server the explanations in the following apply as well except that you can skip reading the part on Vagrant and apply the provision script (``) directly on your machine.
+We have a set of distributed developers working on their local computers and collaborating on the same source code via a Git repository hosted on GitHub. Since, for this example we do not have access to a proper build server, i.e., a separate machine, we decide to setup an Ubuntu virtual machine (VirtualBox), which will host our Jenkins build server. In case you have access to a proper build server the explanations in the following apply as well except that you can skip reading the part on Vagrant and apply the provision script (`vm/provision.sh`) directly on your machine.
 
 On a remote server -hosted at Digital Ocean, you can host it anywhere else according to your liking- we have, amongst others, a Docker container running an Artifactory instance, which serves our local Maven dependencies. Finally, to the same remote machine we will automatically deploy a Docker container, which hosts our web-application with the help of a Glassfish application server.
 
@@ -48,22 +47,23 @@ The setup is illustrated in the following.
 ![CI Setup](docs/images/ci_setup.png)
 
 
+Consequently, we have to setup a Jenkins build server in a Vagrant machine, we have to configure it, we have to setup a set of build jobs on it, we have to setup a remote machine with a dockerized Artifactory. The following sections provide a step-wise description on how to do so. To run through this example you should start by cloning this repository to your local machine (`git clone https://github.com/HelgeCPH/cph-code-infra.git`).
 
 
-Setup Your Remote Production Machine
-====================================
+# Setup Your Remote Production Machine
 
-  * Register at Digital Ocean (https://www.digitalocean.com)
+For this example we rent the cheapest possible cloud machine at Digital Ocean -which they call "droplet". You can choose your own servers or any other providers. The descriptions and the provided setup script should be valid for any Debian-based Linux.
+
+  * Create an account at Digital Ocean (https://www.digitalocean.com)
   * Create a new Ubuntu 16.04.1 droplet (smallest machine, 5$ per month)
-  * Register your public SSH key (https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets)
-  * SSH to your new machine and create a new user
-
-```bash
-    ssh root@your_ip
-    adduser builder
-    usermod -aG sudo builder
-    exit
-```
+  * Register your public SSH key while creating a droplet. If you do not have a pair of keys read on how to do that. (https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets)
+  * SSH to your new machine and create a new user, which we will call `builder`
+    ```bash
+        ssh root@your_ip
+        adduser builder
+        usermod -aG sudo builder
+        exit
+    ```
 
   * Copy the setup script to the remote machine and execute it:
 
