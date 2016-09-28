@@ -84,10 +84,12 @@ Now you have a remote machine up and running with an Artifactory instance, an Ap
 
   * Install Vagrant (https://www.vagrantup.com/docs/installation/) and VirtualBox (https://www.virtualbox.org/wiki/Downloads) to your local machine
   * cd to the directory with the Vagrantfile and startup the VM. When started up for the first time `vagrant up` will automatically run the provision script (`provision.sh`). Note in case you want to allow your group members to log onto the Jenkins build server on this machine uncomment the line `  # config.vm.network "public_network"` in the `Vagrantfile`.
+
     ```bash
     cd /path/to/vm
     vagrant up
     ```
+
   * You can ssh into this VM via `vagrant ssh`
   * After starting the VM Jenkins should be up and running. You can access it via http://localhost:8080
 
@@ -301,5 +303,7 @@ Of course, remember in both scripts to replace `<your_dockerhub_id>` with your l
   * Add transition from `SNAPSHOT` to `RELEASE` to build jobs.
   * Configure and share build jobs as Groovy scripts.
   * Share Jenkins configuration as Groovy scripts.
+  * Build the Docker container using one of the corresponding Jenkins plugins.
+  * Describe an alternative scenario, in which we use the *Deploy to* plugin to deploy directly to the Glassfish application server.
 
 The idea with the latter two would be to allow for a completely automatic and reproducible CI chain setup.
