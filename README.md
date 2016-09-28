@@ -295,6 +295,14 @@ Of course, remember in both scripts to replace `<your_dockerhub_id>` with your l
 
 
 
+# We are Done!
+
+That is it! After creating and running the above four build jobs you should have the web application up and running on your remote machine. Try to navigate to http://<your_ip>:8080/Choir/ChoirManager and you should be served the following webpage.
+
+![CI Setup](docs/images/result.png)
+
+
+
 
 
 # Improvements to the Example CI Chain
