@@ -1,4 +1,8 @@
-This document is related to the course Development of Large Systems at Copenhagen Business Academy (https://www.cphbusiness.dk/english/study-programmes/top-up-bachelors-degree/software-development/2nd-semester/). Some parts of it build on infrastructure code and experiences from Praqma's CoDe training (https://github.com/praqma-training/code-infra).
+# A CI/CD Example Setup
+
+This document is hosted at: https://github.com/HelgeCPH/cph-code-infra This PDF is just a dump of the original README.md.
+
+It is related to the course Development of Large Systems at Copenhagen Business Academy (https://www.cphbusiness.dk/english/study-programmes/top-up-bachelors-degree/software-development/2nd-semester/). Some parts of it build on infrastructure code and experiences from Praqma's CoDe training (https://github.com/praqma-training/code-infra).
 
 This is a guide on how to setup an example continuous integration (CI) chain using the following technologies and tools:
 
@@ -57,7 +61,7 @@ Consequently, we have to setup a Jenkins build server in a Vagrant machine, we h
 For this example we rent the cheapest possible cloud machine at Digital Ocean -which they call "droplet". You can choose your own servers or any other providers. The descriptions and the provided setup script should be valid for any Debian-based Linux.
 
   * Create an account at Digital Ocean (https://www.digitalocean.com)
-  * Create a new Ubuntu 16.04.1 droplet (smallest machine, 5$ per month)
+  * Create a new Ubuntu 16.04.3 x64 droplet (second smallest machine, 0.015USD per hour/ 10USD per month)
   * Register your public SSH key while creating a droplet. If you do not have a pair of keys read on how to do that. (https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets)
   * SSH to your new machine and create a new user, which we will call `builder`. You can copy the IP `<your_ip>` from your droplet configuration page.
 
@@ -67,6 +71,19 @@ For this example we rent the cheapest possible cloud machine at Digital Ocean -w
     usermod -aG sudo builder
     exit
     ```
+  * Enable public key authentication for your new user. The following assumes that you have a keypair readily available.
+
+    ```bash
+    ssh root@<your_ip>
+    su - builder
+    mkdir ~/.ssh
+    chmod 700 ~/.ssh
+    echo "<your_public_key>" > ~/.ssh/authorized_keys
+    chmod 600 ~/.ssh/authorized_keys
+    ```
+
+    In case you have issues with this step make sure to read the guide on [initial Ubuntu server setup](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-16-04), especially the section _"Step Four — Add Public Key Authentication"_!
+
   * Copy the setup script to the remote machine, log onto it, make the file executable, and run it.
 
     ```bash
@@ -77,13 +94,13 @@ For this example we rent the cheapest possible cloud machine at Digital Ocean -w
     exit
     ```
 
-Now you have a remote machine up and running with an Artifactory instance, an Apache webserver. To validate that these first steps were successful, navigate to http://<your_ip>/ where you should see documentation on how to connect to the Artifactory instance.
+Now you have a remote machine up and running with an Artifactory instance and an Apache webserver. To validate that these first steps were successful, point your browser to http://<your_ip>/ where you should see documentation on how to connect to the Artifactory instance.
 
 
 # Setup Your Local Build Machine
 
   * Install Vagrant (https://www.vagrantup.com/docs/installation/) and VirtualBox (https://www.virtualbox.org/wiki/Downloads) to your local machine
-  * cd to the directory with the Vagrantfile and startup the VM. When started up for the first time `vagrant up` will automatically run the provision script (`provision.sh`). Note in case you want to allow your group members to log onto the Jenkins build server on this machine uncomment the line `  # config.vm.network "public_network"` in the `Vagrantfile`.
+  * `cd` to the directory with the `Vagrantfile` and startup the VM. When started up for the first time `vagrant up` will automatically run the provision script (`provision.sh`). Note in case you want to allow your group members to log onto the Jenkins build server on this machine uncomment the line `  # config.vm.network "public_network"` in the `Vagrantfile`.
 
     ```bash
     cd /path/to/vm
@@ -91,7 +108,7 @@ Now you have a remote machine up and running with an Artifactory instance, an Ap
     ```
 
   * You can ssh into this VM via `vagrant ssh`
-  * After starting the VM Jenkins should be up and running. You can access it via http://localhost:8080
+  * After starting the VM Jenkins should be up and running. You can access it via http://localhost:9090
 
 
 ## Configuring Jenkins
@@ -151,10 +168,18 @@ You enable non-interactive login to the remote machine by logging to the VM, swi
 vagrant ssh
 sudo su jenkins
 ssh-keygen -t rsa -b 2048
-ssh-copy-id builder@<your_ip>
+cat /var/lib/jenkins/.ssh/id_rsa.pub
 ```
 
-To verify that the remote login based on the keys it working ssh to the machine from the `jenkins` user:
+Copy the output of the cat command, i.e., the `jenkins` users' public key into you clipboard. From another terminal session connect to your remote server at DigitalOcean and register yet another public key.
+
+```bash
+ssh builder@46.101.154.221
+echo "<your_public_jenkins_key>" >> ~/.ssh/authorized_keys
+exit
+```
+
+To verify that the remote login based on the keys is working, `ssh` to the machine from the `jenkins` user in your Vagrant VM:
 
 ```bash
 ssh builder@<your_ip>
