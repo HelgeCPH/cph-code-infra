@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # add this line to hosts too get rid of unknown host messages
-echo '127.0.1.1 ubuntu-xenial' | sudo tee --append /etc/hosts
+# echo '127.0.1.1 ubuntu-xenial' | sudo tee --append /etc/hosts
 
 # install Jenkins to the VM
 wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -
