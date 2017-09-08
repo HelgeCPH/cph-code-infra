@@ -11,7 +11,6 @@ This is a guide on how to setup an example continuous integration (CI) chain usi
   * Docker containers (https://www.docker.com) and DockerHub (https://hub.docker.com) as a public registry,
   * Vagrant (https://www.vagrantup.com) to setup and manage virtual machines
   * the Maven repository manager Artifactory (https://www.jfrog.com/open-source/),
-  * the application server Glassfish (http://glassfish.java.net/),
   * and the cloud server provider Digital Ocean (https://www.digitalocean.com).
 
 
@@ -25,9 +24,9 @@ The project's source code can be found here:
 
   * Contracts: https://github.com/eguahlak/choir-contract
   * A mockup of a backend: https://github.com/eguahlak/choir-backend-mock
-  * And a simple frontend: https://github.com/eguahlak/choir-frontend
+  * And a simple frontend: https://github.com/Jegp/choir-frontend
 
-In essence, these Java projects form a simple web-application, which serves a list of names via a JSP (http://<your_remote_host>:8080/Choir/ChoirManager).
+In essence, these Java projects form a simple web-application, which serves a list of names via a JSP (http://<your_remote_host>:8080/choir-frontend/ChoirManager).
 
 The contracts project consists of a set of interfaces and data transfer objects (DTO) and is used to let different groups of students implement their frontends and backend systems independently against a common specification and mockups.
 
@@ -46,7 +45,7 @@ Remember to fork the backend mockup and the frontend example Java projects (http
 
 We have a set of distributed developers working on their local computers and collaborating on the same source code via a Git repository hosted on GitHub. Since, for this example we do not have access to a proper build server, i.e., a separate machine, we decide to setup an Ubuntu virtual machine (VirtualBox), which will host our Jenkins build server. In case you have access to a proper build server the explanations in the following apply as well except that you can skip reading the part on Vagrant and apply the provision script (`vm/provision.sh`) directly on your machine.
 
-On a remote server -hosted at Digital Ocean, you can host it anywhere else according to your liking- we have, amongst others, a Docker container running an Artifactory instance, which serves our local Maven dependencies. Finally, to the same remote machine we will automatically deploy a Docker container, which hosts our web-application with the help of a Glassfish application server.
+On a remote server -hosted at Digital Ocean, you can host it anywhere else according to your liking- we have, amongst others, a Docker container running an Artifactory instance, which serves our local Maven dependencies. Finally, to the same remote machine we will automatically deploy a Docker container, which hosts our web-application.
 
 The setup is illustrated in the following.
 
@@ -201,7 +200,7 @@ The build jobs are the following:
 
   * choir-contract (Maven project build job, red in image)
   * choir-backend-mock (Maven project build job, green in image)
-  * choir-frontend (Maven project build job, yellow in image)
+  * choir-frontend (Freestyle project build job, yellow in image)
   * choir-build-docker (Freestyle project build job, blue in image)
 
 The dependencies of the build jobs is given by their sequence above.
@@ -290,14 +289,14 @@ Navigate to *New Item*, select *Freestyle project*, and give it the name `choir-
 Now, under *Build* -> *Add build step* choose `Execute shell`. Paste the following shell script into the *Command* field.
 
 ```bash
-cp /var/lib/jenkins/workspace/choir-frontend/target/*.war ${WORKSPACE}
-docker build -t <your_dockerhub_id>/glassfish-cph:${BUILD_NUMBER} .
+cp -r /var/lib/jenkins/workspace/choir-frontend-gradle/build/output/choir-frontend ${WORKSPACE}
+docker build -t helgecph/choirserver:${BUILD_NUMBER} .
 
 set +x
-docker login -u <your_dockerhub_id> -p "${DOCKERHUB_PWD}"
+docker login -u helgecph -p "${DOCKERHUB_PWD}"
 set -x
 
-docker push <your_dockerhub_id>/glassfish-cph:${BUILD_NUMBER}
+docker push helgecph/choirserver:${BUILD_NUMBER}
 docker logout
 ```
 
@@ -321,12 +320,16 @@ This will call the remote deployment script, which was put there during machine 
 BUILD_NUMBER=$1
 DOCKER_ID=$2
 # stop all running containers with our web application
-docker stop `docker ps -a | grep ${DOCKER_ID}/glassfish-cph | awk '{print substr ($0, 0, 12)}'`
+docker stop `docker ps -a | grep ${DOCKER_ID}/choirserver | awk '{print substr ($0, 0, 12)}'`
 # remove all of those containers
-docker rm `docker ps -a | grep ${DOCKER_ID}/glassfish-cph | awk '{print substr ($0, 0, 12)}'`
+docker rm `docker ps -a | grep ${DOCKER_ID}/choirserver | awk '{print substr ($0, 0, 12)}'`
+if (( ${BUILD_NUMBER} >= 2 )); then
+    # remove old image
+    docker rmi ${DOCKER_ID}/choirserver:${BUILD_NUMBER}
+fi
 # get the newest version of the containerized web application and run it
-docker pull ${DOCKER_ID}/glassfish-cph:${BUILD_NUMBER}
-docker run -d -ti -p 4848:4848 -p 8080:8080 ${DOCKER_ID}/glassfish-cph:${BUILD_NUMBER}
+docker pull ${DOCKER_ID}/choirserver:${BUILD_NUMBER}
+docker run -d -ti -p 8080:8080 ${DOCKER_ID}/choirserver:${BUILD_NUMBER}
 ```
 
 
@@ -334,7 +337,7 @@ docker run -d -ti -p 4848:4848 -p 8080:8080 ${DOCKER_ID}/glassfish-cph:${BUILD_N
 
 # We are Done!
 
-That is it! After creating and running the above four build jobs you should have the web application up and running on your remote machine. Try to navigate to http://<your_ip>:8080/Choir/ChoirManager and you should be served the following webpage.
+That is it! After creating and running the above four build jobs you should have the web application up and running on your remote machine. Try to navigate to http://<your_ip>:8080/choir-frontend/ChoirManager and you should be served the following webpage.
 
 ![CI Setup](docs/images/result.png)
 
@@ -349,7 +352,5 @@ That is it! After creating and running the above four build jobs you should have
   * Configure and share build jobs as Groovy scripts.
   * Share Jenkins configuration as Groovy scripts.
   * Build the Docker container using one of the corresponding Jenkins plugins.
-  * Describe an alternative scenario, in which we use the *Deploy to* plugin to deploy directly to the Glassfish application server.
-  * There is an issue with the Glassfish container killing the Artifactory container and vice-versa. I do not know the reason for that behavior yet.
 
 The idea with the latter two would be to allow for a completely automatic and reproducible CI chain setup.
