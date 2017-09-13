@@ -38,7 +38,7 @@ Importantly, the projects depend on each other. The backend mockup depends on th
 
 The contracts project and the backend mockup are build as a JAR files, whereas the frontend project is build as a WAR file.
 
-Remember to fork the backend mockup and the frontend example Java projects (https://github.com/eguahlak/choir-backend-mock, https://github.com/eguahlak/choir-frontend) so that you can modify the IP addresses in the `pom.xml`s to point to your machine running the Artifactory instance. Of course, this is only necessary when you want follow this tutorial and you want to replicate this example.
+Remember to fork the backend mockup and the frontend example Java projects (https://github.com/eguahlak/choir-backend-mock,  https://github.com/Jegp/choir-frontend) so that you can modify the IP addresses in the `pom.xml`s to point to your machine running the Artifactory instance. Of course, this is only necessary when you want follow this tutorial and you want to replicate this example.
 
 
 # The CI Setup
@@ -337,7 +337,7 @@ docker run -d -ti -p 8080:8080 ${DOCKER_ID}/choirserver:${BUILD_NUMBER}
 
 # We are Done!
 
-That is it! After creating and running the above four build jobs you should have the web application up and running on your remote machine. Try to navigate to http://<your_ip>:8080/choir-frontend/ChoirManager and you should be served the following webpage.
+That is it! After creating and running the above four build jobs you should have the web application up and running on your remote machine. Try to point your browser to http://<your_ip>:8080/choir-frontend/ChoirManager and you should be served the following webpage.
 
 ![CI Setup](docs/images/result.png)
 
